@@ -6,6 +6,7 @@
 #include "list.h"
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 //**************************************************************************************
 // function name: InsertElem
 // Description: insert new element to list
@@ -31,6 +32,7 @@ int InsertElem(LIST_ELEMENT** pList, char* value, int ID, int pID, int susp)
 	    
 		strcpy(List->VarValue, value);
 		List->VarName = NULL; // VarName doesn't mean anything for job
+		List->time = time(NULL);
 		List->ID = ID;
 		List->pID = pID;
 		List->suspended = susp;
@@ -52,6 +54,7 @@ int InsertElem(LIST_ELEMENT** pList, char* value, int ID, int pID, int susp)
 				exit (-1); 
 			strcpy(temp->VarValue, List->VarValue);
 			temp->VarName = NULL;
+			List->time = time(NULL);
 			temp->pID = List->pID;
 			temp->ID = List->ID;
 			temp->suspended = List->suspended;
@@ -62,6 +65,7 @@ int InsertElem(LIST_ELEMENT** pList, char* value, int ID, int pID, int susp)
 			if (List->VarValue == NULL) 
 				exit (-1); 
 			strcpy(List->VarValue, value);
+			List->time = time(NULL);
 			List->ID = ID;
 			List->pID = pID;
 			List->suspended = susp;
@@ -199,6 +203,25 @@ int  GetId(LIST_ELEMENT** pList, int pID)
 		return List->ID;
 	return GetId(&List->pNext, pID);
 }
+
+//**************************************************************************************
+// function name: GetValue
+// Description: get Value of element accordind its PID
+// Parameters: pointer to list, PID 
+// Returns: value, or NULL if not found
+//**************************************************************************************
+char* GetValue(LIST_ELEMENT** pList, int pID)
+{
+        LIST_ELEMENT *List;
+        List = *pList;
+        
+        if (List == NULL) 
+		return NULL; 
+        if (List->pID == pID) 			
+		return List->VarValue;
+	return GetValue(&List->pNext, pID);
+}
+
 //**************************************************************************************
 // function name: GetPid
 // Description: get PID of element accordind its ID
@@ -213,6 +236,8 @@ int GetPid(LIST_ELEMENT* List, int ID)
 		return List->pID;
 	return GetPid(List->pNext, ID);
 }
+
+
 //**************************************************************************************
 // function name: DelList
 // Description: delete list. free all related memory

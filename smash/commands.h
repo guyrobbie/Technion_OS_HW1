@@ -12,12 +12,13 @@
 #include "vars.h"
 #define MAX_LINE_SIZE 80
 #define MAX_ARG 20
+#define MAX_COMMAND_CHARS 50
 pNode stack_head;
 typedef enum { FALSE , TRUE } bool;
 int ExeComp(char* lineSize);
 int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList);
 int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, char* cmdString);
-void ExeExternal(char *args[MAX_ARG], char* cmdString);
+void ExeExternal(char *args[MAX_ARG], int num_arg, LIST_ELEMENT **pJobsList);
 int GPid;// PID (global)
 int Last_Bg_Pid;
 int Susp_Bg_Pid;

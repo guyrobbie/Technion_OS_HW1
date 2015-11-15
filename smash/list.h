@@ -4,12 +4,13 @@
 typedef struct _LIST_ELEMENT
 {
 	char* VarName;
-    	char* VarValue;
+    char* VarValue;
+	time_t time;
 	int ID;
 	int pID;
-    	int suspended;
-    	struct _LIST_ELEMENT* pNext;
-} LIST_ELEMENT;   
+    int suspended;
+    struct _LIST_ELEMENT* pNext;
+} LIST_ELEMENT;
 typedef struct _node{
 	char* pDir;
 	struct _node* next;
@@ -24,6 +25,7 @@ char* GetVar(LIST_ELEMENT* List, char* varname);
 int ModifyElem(LIST_ELEMENT** pList, char* varname, char* value);
 int GetId(LIST_ELEMENT** pList, int pID);
 int DelVar(LIST_ELEMENT** pList, char* varname);
+char* GetValue(LIST_ELEMENT** pList, int pID);
 int GetPid(LIST_ELEMENT* List, int ID);
 #endif
 

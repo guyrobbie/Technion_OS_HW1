@@ -9,7 +9,9 @@
 #include <signal.h>
 #include "list.h"
 
+//void handle_sigcont(int sig_num);
+void handle_SIGTSTP(int sig_num);
 
-
+void handle_SIGCHLD(int sig_num);
 #endif
 

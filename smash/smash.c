@@ -12,15 +12,22 @@ main file. This file contains the main function of smash
 #include "vars.h"
 #include "commands.h"
 #include "signals.h"
+
+
+// Defines
 #define MAX_LINE_SIZE 80
 #define MAXARGS 20
+
 extern int GPid;// PID (global)
 extern int Last_Bg_Pid;
 extern int Susp_Bg_Pid;
 extern char* L_Fg_Cmd;
 extern int susp; //is the process suspended: 0- no, 1- yes
 LIST_ELEMENT* JobsList = NULL;
-char lineSize[MAX_LINE_SIZE]; 
+char lineSize[MAX_LINE_SIZE];
+char g_prevPwd[MAX_LINE_SIZE] = {0}; // saving the previous path as global and initialize it to null characters
+char g_currPwd[MAX_LINE_SIZE] = {0};
+ 
 //**************************************************************************************
 // function name: main
 // Description: main function of smash. get command from user and calls command functions
@@ -38,7 +45,11 @@ int main(int argc, char *argv[])
 	//NOTE: the signal handlers and the function/s that sets the handler should be found in siganls.c
 	//set your signal handlers here
 	/* add your code here */
-
+	
+	signal(SIGTSTP,handle_SIGTSTP);
+	signal(SIGCHLD,handle_SIGCHLD);
+	
+	
 	/************************************/
 
 	/************************************/
@@ -54,11 +65,12 @@ int main(int argc, char *argv[])
 			exit (-1); 
 	L_Fg_Cmd[0] = '\0';
 	
+	
     	while (1)
     	{
 	 	printf("smash > ");
 		fgets(lineSize, MAX_LINE_SIZE, stdin);
-		strcpy(cmdString, lineSize);    	
+		strcpy(cmdString, lineSize);
 		cmdString[strlen(lineSize)-1]='\0';
 					// replace $variable with it's value:
 		if(VarRplc(VarList, lineSize)) continue; 
