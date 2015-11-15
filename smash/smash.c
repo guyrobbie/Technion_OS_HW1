@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
 	/* add your code here */
 	
 	signal(SIGTSTP,handle_SIGTSTP);
+	signal(SIGINT,handle_SIGINT);
 	signal(SIGCHLD,handle_SIGCHLD);
 	
 	

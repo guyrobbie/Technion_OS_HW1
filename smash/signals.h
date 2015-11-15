@@ -9,9 +9,8 @@
 #include <signal.h>
 #include "list.h"
 
-//void handle_sigcont(int sig_num);
-void handle_SIGTSTP(int sig_num);
-
-void handle_SIGCHLD(int sig_num);
+void handle_SIGTSTP(int sig_num); 	//handles CTRL-Z action
+void handle_SIGINT(int sig_num); 	//handles CTRL-C action
+void handle_SIGCHLD(int sig_num);	//handles Signals sends by Childs that had stopped or terminated
 #endif
 

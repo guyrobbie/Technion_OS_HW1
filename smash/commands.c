@@ -8,6 +8,8 @@ extern char g_prevPwd[MAX_LINE_SIZE]; // saving the previous path as global and 
 extern char g_currPwd[MAX_LINE_SIZE];
 
 int g_forground_pID;
+int Last_terminated_process;
+int g_process_terminated;
 //********************************************
 // function name: ExeCmd
 // Description: interperts and executes built-in commands
@@ -95,7 +97,37 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	
 	else if (!strcmp(cmd, "kill")) 
 	{
-
+		//printf("DEBUG: args[1][0]: %c\n", args[1][0]);
+		if(args[1][0] == '-')
+		{
+			//printf("DEBUG: args[1][0]: %c\n", args[1][0]);
+			int job = atoi(args[2]);
+			int signum = atoi(&args[1][1]); // skips the '-' character
+			int is_signal_send = 0;
+		
+			for(pElem_curr = *pJobsList ; pElem_curr != NULL ; pElem_curr = pElem_curr->pNext)
+			{
+				if(job == pElem_curr->ID)
+				{
+					if((signum < 32) && (signum > 0))
+					{
+						if(kill(pElem_curr->pID,signum) == 0)
+						{
+							is_signal_send = 1;
+							printf("signal %d was sent to pid: %d \n", signum, pElem_curr->pID);
+						}
+						else
+							printf("smash error: > kill %d - cannot send signal\n", job);
+							
+					}
+					else
+						printf("smash error: > kill %d - cannot send signal\n", job);
+					break; // exit when signal was sent
+				}
+			}		
+			if( is_signal_send == 0)
+				printf("smash error: > kill %d - job does not exist\n", job);
+		}	
 	}
 	
 	/*************************************************/
@@ -205,8 +237,54 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	/*************************************************/
 	else if (!strcmp(cmd, "quit"))
 	{
-   		
-	} 
+		if(num_arg == 0)
+		{
+			//printf("DEBUG: smash quit\n");
+			exit(0);
+		}
+		else
+		{
+			if(!strcmp(args[1], "kill")) //testing if kill parameter was passed	
+			{
+				int sec_left ,pid ,status = 0;
+				for(pElem_curr = *pJobsList ; pElem_curr != NULL ; pElem_curr = pElem_curr->pNext)
+				{
+					Last_terminated_process =  pElem_curr->pID;
+					g_process_terminated = 0;
+					printf("[%d] %s - Sending SIGTERM...", pElem_curr->ID, pElem_curr->VarValue);
+					kill(pElem_curr->pID, SIGTERM);
+					
+					if(sleep(5) != 0) // meaning it was Signaled SIGCHLD, for the terminated child.
+					{
+						if(g_process_terminated == 1)
+						{
+							//printf("DEBUG: Last_terminated_process is: %d\n", Last_terminated_process);
+							printf("Done.\n");
+						}
+						else
+						{
+							printf("DEBUG: error!\n");
+							//printf("DEBUG: Last_terminated_process is: %d\n", Last_terminated_process);
+						}
+					}
+					else
+					{
+						kill(pElem_curr->pID, SIGKILL);
+						printf("(5 sec passed) Sending SIGKILL...Done.\n");
+						//printf("DEBUG: pid is: %d, pElem_curr->pID is: %d\n", pid, pElem_curr->pID);	
+					}
+				}
+				//printf("DEBUG: smash quit kill\n");
+				exit(0);
+			}
+			else
+			{
+				printf("DEBUG: Error, wrong num of parameters in quit commmand\n");
+			}
+		}
+		
+		
+	}
 	/*************************************************/
 	else // external command
 	{

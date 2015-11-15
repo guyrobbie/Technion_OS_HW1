@@ -5,7 +5,7 @@ main file. This file contains the main function of smash
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include <signal.h>
 
 //**************************************************************************************
 // function name: main
@@ -13,6 +13,7 @@ main file. This file contains the main function of smash
 //**************************************************************************************
 int main(int argc, char *argv[])
 {
+	signal(SIGTERM, SIG_IGN);
 	while(1);
 	return 0;
 }
