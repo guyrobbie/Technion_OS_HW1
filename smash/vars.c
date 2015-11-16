@@ -9,7 +9,7 @@
 // Returns: pointer to original
 //**************************************************************************************
 char *ValueReplace(char *orig_string, char *old_var_value, char *new_var_value)
-{
+{ 
 	int oldlen, newlen;
 	char *s, *p;
 	s = orig_string;

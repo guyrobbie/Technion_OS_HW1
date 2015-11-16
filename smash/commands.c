@@ -3,6 +3,7 @@
 #include "commands.h"
 #include "signals.h"
 #include <errno.h>
+#include <sys/stat.h> 
 
 extern char g_prevPwd[MAX_LINE_SIZE]; // saving the previous path as global and initialize it to null characters
 extern char g_currPwd[MAX_LINE_SIZE];
@@ -18,14 +19,13 @@ int g_process_terminated;
 //**************************************************************************************
 int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, char* cmdString)
 {
-	LIST_ELEMENT* pElem;
-	LIST_ELEMENT* pElem_curr;
+	LIST_ELEMENT* pElem_curr = NULL;
 	char* cmd; 
 	char* args[MAX_ARG];
 	char *val;
 	char pwd[MAX_LINE_SIZE];
 	char* delimiters = " \t\n";  
-	int pID = 0, i = 0, num_arg = 0;
+	int  i = 0, num_arg = 0;
 	
 	
 	bool illegal_cmd = FALSE; // illegal command
@@ -88,10 +88,17 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	{
 		
 		if(mkdir(args[1],0x777) == -1)
+		{
 			if(errno == EEXIST)
+			{
 				printf("smash error:> \"%s\" - directory already exists\n", args[1]);
+			}				
 			else
+			{
 				printf("smash error:> \"%s\" - cannot create directory\n", args[1]);
+			}				
+		}
+			
 		return 0;
 	}
 	
@@ -173,7 +180,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	{
 		for(pElem_curr = *pJobsList ; pElem_curr != NULL ; pElem_curr = pElem_curr->pNext)
 		{
-			printf("[%d] %s : %d %d secs", pElem_curr->ID, pElem_curr->VarValue, pElem_curr->pID, (time(NULL)- pElem_curr->time ));
+			printf("[%d] %s : %d %d secs", pElem_curr->ID, pElem_curr->VarValue, pElem_curr->pID, (int)(time(NULL)- pElem_curr->time ));
 			
 			printf( (pElem_curr->suspended == 0)? "\n": " (stopped)\n");
 		}
@@ -235,7 +242,6 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 		{
 			if(!strcmp(args[1], "kill")) //testing if kill parameter was passed	
 			{
-				int sec_left ,pid ,status = 0;
 				for(pElem_curr = *pJobsList ; pElem_curr != NULL ; pElem_curr = pElem_curr->pNext)
 				{
 					Last_terminated_process =  pElem_curr->pID;
@@ -328,8 +334,7 @@ int ExeComp(char* lineSize)
 {
 	int pID;
 	int status;
-	char ExtCmd[MAX_LINE_SIZE+8];
-	char *args[MAX_ARG];
+	char args[MAX_ARG][MAX_LINE_SIZE];
     if ( 	(strstr(lineSize, "|")) || 
 			(strstr(lineSize, "<")) || 
 			(strstr(lineSize, ">")) || 
@@ -339,18 +344,21 @@ int ExeComp(char* lineSize)
 			(strstr(lineSize, "|&"))
 			)
     {
-		stpcpy(&ExtCmd, " -f -c ");
-		ExtCmd[7] = '""';
-		stpncpy(&ExtCmd[8], lineSize, MAX_LINE_SIZE - 8);
-		ExtCmd[strlen(lineSize) + 9 - 2] = '""';
-		ExtCmd[strlen(lineSize) + 9 - 1] = '\0';
-		
+		strcpy(args[0], "csh");
+		args[0][sizeof("csh")] = 0;
+		printf("Debug: %s", args[0]);
+		strcpy(args[1], "-fc");
+		args[1][sizeof("-fc")] = 0;
+		printf("Debug: %s", args[1]);
+		strcpy(args[2], lineSize);
+		args[2][sizeof(lineSize)] = 0;
+				
 		pID = fork();
 		if(pID == 0)
 		{
 			setpgrp();
 			// Build csh args
-			execv("csh", ExtCmd);
+			execv("csh", (char**)args);
 			//execv(args[0], args);
 			perror("Execv error");
 			exit(1);
@@ -382,7 +390,7 @@ int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList)
 	char* delimiters = " \t\n";
 	char *args[MAX_ARG];
 	int num_arg = 0;
-	int res;
+	
 	if (lineSize[strlen(lineSize)-2] == '&')
 	{
 		lineSize[strlen(lineSize)-2] = '\0';
@@ -401,7 +409,7 @@ int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList)
 			
 		// Add your code here (execute a in the background)
 		pID = fork();
-		if(pID == 0)
+		if(pID == 0) 
 		{
 			setpgrp();
 			execv(args[0], args);
@@ -410,7 +418,7 @@ int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList)
 		}
 		else if(pID > 0)
 		{
-			res = InsertElem(pJobsList, args[0], 1, pID, 0);
+			InsertElem(pJobsList, args[0], 1, pID, 0);
 			//
 		}
 		else

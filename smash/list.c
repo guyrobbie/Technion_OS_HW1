@@ -14,7 +14,7 @@
 // Returns: 0- success, 1- failure
 //**************************************************************************************
 int InsertElem(LIST_ELEMENT** pList, char* value, int ID, int pID, int susp)
-{
+{ 
 	LIST_ELEMENT *List;
 	LIST_ELEMENT *temp;
 	List = *pList;

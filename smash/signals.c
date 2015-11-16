@@ -33,7 +33,7 @@ void handle_SIGINT(int sig_num) //handles CTRL-C action
 	DelPID(&JobsList, g_forground_pID);
 	printf("\nsignal SIGINT was sent to pID: %d \n", g_forground_pID);
 	kill(g_forground_pID,SIGINT);
-}
+} 
 
 void handle_SIGCHLD(int sig_num)
 {

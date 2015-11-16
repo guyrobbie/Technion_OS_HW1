@@ -6,7 +6,7 @@ typedef struct _LIST_ELEMENT
 	char* VarName;
     char* VarValue;
 	time_t time;
-	int ID;
+	int ID; 
 	int pID;
     int suspended;
     struct _LIST_ELEMENT* pNext;

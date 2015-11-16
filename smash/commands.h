@@ -5,7 +5,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include <signal.h>
-#include <string.h>
+#include <string.h> 
 #include <sys/types.h>
 #include <sys/wait.h>
 #include "list.h"

@@ -8,5 +8,5 @@
 #define MAX_LINE_SIZE 80
 int VarRplc(LIST_ELEMENT *VarList, char* lineSize);
 void PrintVars(LIST_ELEMENT** pVarList);
-#endif
+#endif 
 
