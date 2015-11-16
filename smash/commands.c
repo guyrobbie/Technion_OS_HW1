@@ -346,10 +346,10 @@ int ExeComp(char* lineSize)
     {
 		strcpy(args[0], "csh");
 		args[0][sizeof("csh")] = 0;
-		printf("Debug: %s", args[0]);
+		//printf("%s\n",args[0]);
 		strcpy(args[1], "-fc");
 		args[1][sizeof("-fc")] = 0;
-		printf("Debug: %s", args[1]);
+		
 		strcpy(args[2], lineSize);
 		args[2][sizeof(lineSize)] = 0;
 				
@@ -358,7 +358,7 @@ int ExeComp(char* lineSize)
 		{
 			setpgrp();
 			// Build csh args
-			execv("csh", (char**)args);
+			execv(args[0], (char**)args);
 			//execv(args[0], args);
 			perror("Execv error");
 			exit(1);
