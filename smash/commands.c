@@ -4,6 +4,9 @@
 #include "signals.h"
 #include <errno.h>
 
+#define CSH_NUM_OF_CHARS 	7
+#define NUM_OF_EXTRA_CHARS	2 + CSH_NUM_OF_CHARS
+
 extern char g_prevPwd[MAX_LINE_SIZE]; // saving the previous path as global and initialize it to null characters
 extern char g_currPwd[MAX_LINE_SIZE];
 
@@ -40,7 +43,7 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 			num_arg++; 
  
 	}
-
+	
 /*************************************************/
 // Built in Commands
 /*************************************************/
@@ -352,16 +355,52 @@ void ExeExternal(char *args[MAX_ARG], int num_arg, LIST_ELEMENT **pJobsList)
 int ExeComp(char* lineSize)
 {
 	int pID;
-	char ExtCmd[MAX_LINE_SIZE+2];
+	int status;
+	char ExtCmd[MAX_LINE_SIZE+8];
 	char *args[MAX_ARG];
-    if ((strstr(lineSize, "|")) || (strstr(lineSize, "<")) || (strstr(lineSize, ">")) || (strstr(lineSize, "*")) || (strstr(lineSize, "?")) || (strstr(lineSize, ">>")) || (strstr(lineSize, "|&")))
+    if ( 	(strstr(lineSize, "|")) || 
+			(strstr(lineSize, "<")) || 
+			(strstr(lineSize, ">")) || 
+			(strstr(lineSize, "*")) || 
+			(strstr(lineSize, "?")) || 
+			(strstr(lineSize, ">>")) ||
+			(strstr(lineSize, "|&"))
+			)
     {
+		stpcpy(&ExtCmd, " -f -c ");
+		ExtCmd[7] = '""';
+		stpncpy(&ExtCmd[8], lineSize, MAX_LINE_SIZE - 8);
+		printf("DEBUG: idx %d\n", 7);
+		ExtCmd[strlen(lineSize) + 9 - 2] = '""';
+		ExtCmd[strlen(lineSize) + 9 - 1] = '\0';
+		printf("DEBUG: ExtCmd: %s\n", ExtCmd); // TODO: for debug, need to be remove
+		
+		pID = fork();
+		if(pID == 0)
+		{
+			setpgrp();
+			// Build csh args
+			execv("csh", ExtCmd);
+			//printf("Debug, Background, Child process, pid: %d\n", getpid()); // TODO: for debug, need to be remove
+			//execv(args[0], args);
+			perror("Execv error");
+			exit(1);
+		}
+		else if(pID > 0)
+		{
+			wait(&status);
+			//printf("Debug, Background, Parent process, pid: %d\n", getpid()); // TODO: for debug, need to be remove
+			//InsertElem(pJobsList, args[0], 1, pID, 0);
+			//
+		}
+		else
+		{
+			printf("\nFork Error");
+		}
 		// Add your code here (execute a complicated command)
-					
-		/* 
-		your code
-		*/
-	} 
+		return 0;
+		
+	}
 	return -1;
 }
 //**************************************************************************************
