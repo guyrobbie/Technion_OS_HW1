@@ -19,17 +19,18 @@ extern int g_forground_pID;
 
 void handle_SIGTSTP(int sig_num) //handles CTRL-Z action
 {
+	if(g_forground_pID <= 0)
+		return;
 	InsertElem(&JobsList, L_Fg_Cmd, 1, g_forground_pID, 1);
-	printf("\nDEBUG: L_Fg_Cmd %s \n", L_Fg_Cmd);
-	printf("\nDEBUG: g_forground_pID %d \n", g_forground_pID);
 	printf("\nsignal SIGTSTP was sent to pID: %d \n", g_forground_pID);
 	kill(g_forground_pID,SIGTSTP);
 }
 
 void handle_SIGINT(int sig_num) //handles CTRL-C action
 {
+	if(g_forground_pID <= 0)
+		return;
 	DelPID(&JobsList, g_forground_pID);
-	printf("\nDEBUG: g_forground_pID %d \n", g_forground_pID);
 	printf("\nsignal SIGINT was sent to pID: %d \n", g_forground_pID);
 	kill(g_forground_pID,SIGINT);
 }

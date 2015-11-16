@@ -4,9 +4,6 @@
 #include "signals.h"
 #include <errno.h>
 
-#define CSH_NUM_OF_CHARS 	7
-#define NUM_OF_EXTRA_CHARS	2 + CSH_NUM_OF_CHARS
-
 extern char g_prevPwd[MAX_LINE_SIZE]; // saving the previous path as global and initialize it to null characters
 extern char g_currPwd[MAX_LINE_SIZE];
 
@@ -100,10 +97,8 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	
 	else if (!strcmp(cmd, "kill")) 
 	{
-		//printf("DEBUG: args[1][0]: %c\n", args[1][0]);
 		if(args[1][0] == '-')
 		{
-			//printf("DEBUG: args[1][0]: %c\n", args[1][0]);
 			int job = atoi(args[2]);
 			int signum = atoi(&args[1][1]); // skips the '-' character
 			int is_signal_send = 0;
@@ -195,11 +190,6 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 		
 		if(num_arg == 0)
 		{
-			for(pElem_curr = *pJobsList ; pElem_curr->pNext != NULL ; pElem_curr = pElem_curr->pNext)
-			{
-				printf("DEBUG: [%d] %s : %d\n", pElem_curr->ID, pElem_curr->VarValue, pElem_curr->pID);
-			}
-			
 			g_forground_pID = pElem_curr->pID;
 			strncpy(L_Fg_Cmd, pElem_curr->VarValue, MAX_COMMAND_CHARS);
 			if(pElem_curr->suspended == 1)
@@ -213,7 +203,6 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 		{
 			int tempPid;
 			tempPid = GetPid(*pJobsList, atoi(args[1]));
-			//printf("DEBUG: args[1]: %s, args[1]_val %d\n", args[1],atoi(args[1]));
 			 
 			if(tempPid == -1)
 				printf("smash error: > \"%s\" job does not exist\n", args[1]);
@@ -222,8 +211,6 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 				printf("signal %d was sent to pid: %d \n", SIGCONT, tempPid);
 				g_forground_pID = tempPid;
 				strncpy(L_Fg_Cmd, GetValue(pJobsList, tempPid), MAX_COMMAND_CHARS);
-				printf("DEBUG: GetValue(pJobsList, tempPid) %s \n", GetValue(pJobsList, tempPid));
-				printf("DEBUG: L_Fg_Cmd %s \n", L_Fg_Cmd);
 				kill(tempPid, SIGCONT);
 				
 				waitpid(tempPid,NULL,WUNTRACED);
@@ -242,7 +229,6 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 	{
 		if(num_arg == 0)
 		{
-			//printf("DEBUG: smash quit\n");
 			exit(0);
 		}
 		else
@@ -261,28 +247,16 @@ int ExeCmd(LIST_ELEMENT **pJobsList, LIST_ELEMENT **pVarList, char* lineSize, ch
 					{
 						if(g_process_terminated == 1)
 						{
-							//printf("DEBUG: Last_terminated_process is: %d\n", Last_terminated_process);
 							printf("Done.\n");
-						}
-						else
-						{
-							printf("DEBUG: error!\n");
-							//printf("DEBUG: Last_terminated_process is: %d\n", Last_terminated_process);
 						}
 					}
 					else
 					{
 						kill(pElem_curr->pID, SIGKILL);
 						printf("(5 sec passed) Sending SIGKILL...Done.\n");
-						//printf("DEBUG: pid is: %d, pElem_curr->pID is: %d\n", pid, pElem_curr->pID);	
 					}
 				}
-				//printf("DEBUG: smash quit kill\n");
 				exit(0);
-			}
-			else
-			{
-				printf("DEBUG: Error, wrong num of parameters in quit commmand\n");
 			}
 		}
 		
@@ -324,7 +298,6 @@ void ExeExternal(char *args[MAX_ARG], int num_arg, LIST_ELEMENT **pJobsList)
         	case 0 :
                 	// Child Process
                		setpgrp();
-					printf("Debug, Child process, pid: %d\n", getpid()); // TODO: for debug, need to be remove
 					execv(args[0],args);
 			        // Add your code here (execute an external command)
 					perror("smash error: > ");
@@ -337,7 +310,6 @@ void ExeExternal(char *args[MAX_ARG], int num_arg, LIST_ELEMENT **pJobsList)
 					g_forground_pID = pID;
 					strncpy(L_Fg_Cmd, args[0], MAX_COMMAND_CHARS);
 					waitpid(pID,NULL,WUNTRACED);
-					printf("Debug, Parent process, pid: %d\n", getpid()); // TODO: for debug, need to be remove
                 	// Add your code here
 					
 					/* 
@@ -370,10 +342,8 @@ int ExeComp(char* lineSize)
 		stpcpy(&ExtCmd, " -f -c ");
 		ExtCmd[7] = '""';
 		stpncpy(&ExtCmd[8], lineSize, MAX_LINE_SIZE - 8);
-		printf("DEBUG: idx %d\n", 7);
 		ExtCmd[strlen(lineSize) + 9 - 2] = '""';
 		ExtCmd[strlen(lineSize) + 9 - 1] = '\0';
-		printf("DEBUG: ExtCmd: %s\n", ExtCmd); // TODO: for debug, need to be remove
 		
 		pID = fork();
 		if(pID == 0)
@@ -381,7 +351,6 @@ int ExeComp(char* lineSize)
 			setpgrp();
 			// Build csh args
 			execv("csh", ExtCmd);
-			//printf("Debug, Background, Child process, pid: %d\n", getpid()); // TODO: for debug, need to be remove
 			//execv(args[0], args);
 			perror("Execv error");
 			exit(1);
@@ -389,9 +358,6 @@ int ExeComp(char* lineSize)
 		else if(pID > 0)
 		{
 			wait(&status);
-			//printf("Debug, Background, Parent process, pid: %d\n", getpid()); // TODO: for debug, need to be remove
-			//InsertElem(pJobsList, args[0], 1, pID, 0);
-			//
 		}
 		else
 		{
@@ -438,14 +404,12 @@ int BgCmd(char* lineSize, LIST_ELEMENT** pJobsList)
 		if(pID == 0)
 		{
 			setpgrp();
-			//printf("Debug, Background, Child process, pid: %d\n", getpid()); // TODO: for debug, need to be remove
 			execv(args[0], args);
 			perror("Execv error");
 			exit(1);
 		}
 		else if(pID > 0)
 		{
-			//printf("Debug, Background, Parent process, pid: %d\n", getpid()); // TODO: for debug, need to be remove
 			res = InsertElem(pJobsList, args[0], 1, pID, 0);
 			//
 		}
