@@ -334,7 +334,7 @@ int ExeComp(char* lineSize)
 {
 	int pID;
 	int status;
-	char args[MAX_ARG][MAX_LINE_SIZE];
+	char* args[MAX_ARG];
     if ( 	(strstr(lineSize, "|")) || 
 			(strstr(lineSize, "<")) || 
 			(strstr(lineSize, ">")) || 
@@ -344,21 +344,17 @@ int ExeComp(char* lineSize)
 			(strstr(lineSize, "|&"))
 			)
     {
-		strcpy(args[0], "csh");
-		args[0][sizeof("csh")] = 0;
-		//printf("%s\n",args[0]);
-		strcpy(args[1], "-fc");
-		args[1][sizeof("-fc")] = 0;
+		args[0] = "csh";
+		args[1] = "-fc";
+		args[2] = lineSize;
+		args[3] = (char*)NULL;//try
 		
-		strcpy(args[2], lineSize);
-		args[2][sizeof(lineSize)] = 0;
-				
 		pID = fork();
 		if(pID == 0)
 		{
 			setpgrp();
 			// Build csh args
-			execv(args[0], (char**)args);
+			execvp(args[0], args);
 			//execv(args[0], args);
 			perror("Execv error");
 			exit(1);
