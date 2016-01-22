@@ -9,7 +9,9 @@ main file. This file contains the main function of smash
 
 //**************************************************************************************
 // function name: main
-// Description: main function of smash. get command from user and calls command functions
+// Description: main function of infi, the purpose of this program is to run 
+//              infinite loop so we can test functionalities of smash program
+//              in addition it ignores SIGTERM signal, (CTRL + C)
 //**************************************************************************************
 int main(int argc, char *argv[])
 {
