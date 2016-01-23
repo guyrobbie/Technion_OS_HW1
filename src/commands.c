@@ -28,7 +28,7 @@ int ExeCmd(LIST_ELEMENT** pJobsList, LIST_ELEMENT** pVarList, char* lineSize, ch
     char pwd[MAX_LINE_SIZE];
     int i = 0, num_arg = 0;
 
-    bool illegal_cmd = FALSE; // illegal command
+    bool illegal_cmd = false; // illegal command
     cmd = strtok(lineSize, DELIMITERS);
     if (cmd == NULL)
         return 0;
@@ -122,7 +122,7 @@ int ExeCmd(LIST_ELEMENT** pJobsList, LIST_ELEMENT** pVarList, char* lineSize, ch
             if (DelVar(pVarList, args[1]) != 0)
                 printf("smash error: > \"%s\" - variable not found\n", args[1]);
         } else
-            illegal_cmd = TRUE;
+            illegal_cmd = true;
     }
 
     /*************************************************/
@@ -140,7 +140,7 @@ int ExeCmd(LIST_ELEMENT** pJobsList, LIST_ELEMENT** pVarList, char* lineSize, ch
                     printf("%s := %s\n", args[1], val);
             }
         } else {
-            illegal_cmd = TRUE;
+            illegal_cmd = true;
         }
     }
     /*************************************************/
@@ -227,7 +227,7 @@ int ExeCmd(LIST_ELEMENT** pJobsList, LIST_ELEMENT** pVarList, char* lineSize, ch
         ExeExternal(args, num_arg, pJobsList);
         return 0;
     }
-    if (illegal_cmd == TRUE) {
+    if (illegal_cmd == true) {
         printf("smash error: > \"%s\"\n", cmdString);
         return 1;
     }

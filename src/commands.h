@@ -7,15 +7,15 @@
 #include <signal.h>
 #include <string.h> 
 #include <sys/types.h>
-#include <sys/booltype.h>
 #include <sys/wait.h>
+#include <stdbool.h>
 #include "list.h"
 #include "vars.h"
 
 #define MAX_LINE_SIZE       80
 #define MAX_ARG             20
 #define MAX_COMMAND_CHARS   50
-DELIMITERS                  " \t\n"
+#define DELIMITERS          " \t\n"
 
 pNode stack_head;
 
